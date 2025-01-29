@@ -1,35 +1,84 @@
-import random 
+import random
+import time
+import sys
 
-poderes = ['pedra', 'papel', 'tesoura']
+# Opções do jogo
+OPCOES = ["pedra", "papel", "tesoura"]
 
-jogo_on = True
-
-while jogo_on:
-    
-    computador = random.choice(poderes)
-    jogador = str(input('JOKENPO -> pedra, papel ou tesoura: '))
-    if jogador not in poderes:
-        raise Exception('PODER INCORRETO: escolha entre pedra, papel ou tesoura')
+def obter_resultado(jogador, computador):
+    """Determina o resultado do jogo."""
     if jogador == computador:
-        print('Empate!')
-    elif jogador == 'pedra':
-        if computador != 'papel':
-            print('JOGADOR GANHOU!')
-        else:
-            print('PC GANHOU!')
-    elif jogador == 'papel':
-        if computador != 'tesoura':
-            print('JOGADOR GANHOU!')
-        else:
-            print('PC GANHOU!')
-    elif jogador == 'tesoura':
-        if computador != 'pedra':
-            print('JOGADOR GANHOU!')
-        else:
-            print('PC GANHOU!') 
-    continuar = input("Quer jogar novamente? (s/n): ")
-    
-    if continuar.lower() != 's':
-            print("Fim do jogo! obrigado por jogar.")
+        return "Empate"
+    elif (jogador == "pedra" and computador == "tesoura") or \
+         (jogador == "papel" and computador == "pedra") or \
+         (jogador == "tesoura" and computador == "papel"):
+        return "Jogador venceu!"
     else:
-        jogo_on = False
+        return "PC venceu!"
+
+def animacao_mensagem(mensagens):
+    """Exibe uma animação com uma lista de mensagens."""
+    for mensagem in mensagens:
+        print(mensagem, end="\r", flush=True)
+        time.sleep(1)
+        print(" " * len(mensagem), end="\r", flush=True)
+        time.sleep(0.2)
+
+def animacao_vitoria():
+    """Animação para vitória do jogador."""
+    animacao_mensagem(["\nVocê venceu!", "\nPARABÉNS!", "\nVitória conquistada!", "\nVocê é o campeão!"])
+
+def animacao_derrota():
+    """Animação para derrota do jogador."""
+    animacao_mensagem(["\nPC venceu! :(", "\nTente novamente!", "\nVocê perdeu!", "\nQue pena!"])
+
+def obter_numero_rodadas():
+    """Obtém um número ímpar de rodadas do usuário."""
+    while True:
+        try:
+            rodadas = int(input("Quantas rodadas você quer jogar? (Número ímpar para Melhor de N): "))
+            if rodadas % 2 == 1:
+                return rodadas
+            print("Por favor, escolha um número ímpar.")
+        except ValueError:
+            print("Entrada inválida. Insira um número inteiro.")
+
+def jogar():
+    """Executa o jogo."""
+    rodadas = obter_numero_rodadas()
+    pontos_jogador, pontos_computador = 0, 0
+    rodadas_necessarias = (rodadas // 2) + 1  # Número de vitórias necessárias
+
+    while pontos_jogador < rodadas_necessarias and pontos_computador < rodadas_necessarias:
+        jogador = input("\nJOKENPÔ -> Pedra, Papel ou Tesoura? ").strip().lower()
+
+        if jogador not in OPCOES:
+            print('Escolha inválida. Digite "pedra", "papel" ou "tesoura".')
+            continue
+
+        computador = random.choice(OPCOES)
+        print(f"Jogador escolheu: {jogador.capitalize()}")
+        print(f"Computador escolheu: {computador.capitalize()}")
+
+        resultado = obter_resultado(jogador, computador)
+        print(resultado)
+
+        if resultado == "Jogador venceu!":
+            pontos_jogador += 1
+            animacao_vitoria()
+        elif resultado == "PC venceu!":
+            pontos_computador += 1
+            animacao_derrota()
+
+        print(f"\nPlacar: Jogador {pontos_jogador} x {pontos_computador} PC")
+
+    if pontos_jogador > pontos_computador:
+        print("\nVocê venceu o jogo! Parabéns!")
+        animacao_vitoria()
+    else:
+        print("\nO PC venceu o jogo! Tente novamente.")
+        animacao_derrota()
+
+if __name__ == "__main__":
+    print("\nBem-vindo ao JOKENPÔ!\n")
+    jogar()
